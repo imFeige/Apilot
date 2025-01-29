@@ -10,7 +10,7 @@ from common.log import logger
 from plugins import *
 from datetime import datetime, timedelta
 BASE_URL_VVHAN = "https://api.vvhan.com/api/"
-BASE_URL_ALAPI = "https://v2.alapi.cn/api/"
+BASE_URL_ALAPI = "https://v3.alapi.cn/api/"
 
 
 @plugins.register(
@@ -458,16 +458,24 @@ class Apilot(Plugin):
 
 
                 # Clothing Index,处理部分县区穿衣指数返回null
-                chuangyi_data = data.get('index', {}).get('chuangyi', {})
-                if chuangyi_data:
-                    chuangyi_level = chuangyi_data.get('level', '未知')
-                    chuangyi_content = chuangyi_data.get('content', '未知')
-                else:
-                    chuangyi_level = '未知'
-                    chuangyi_content = '未知'
+                # chuangyi_data = data.get('index', {}).get('chuangyi', {})
+                # if chuangyi_data:
+                #     chuangyi_level = chuangyi_data.get('level', '未知')
+                #     chuangyi_content = chuangyi_data.get('content', '未知')
+                # else:
+                #     chuangyi_level = '未知'
+                #     chuangyi_content = '未知'
 
-                chuangyi_info = f"👚 穿衣指数: {chuangyi_level} - {chuangyi_content}\n"
-                formatted_output.append(chuangyi_info)
+                # chuangyi_info = f"👚 穿衣指数: {chuangyi_level} - {chuangyi_content}\n"
+                # formatted_output.append(chuangyi_info)
+            
+                index_info = ""  # 初始化index_info变量
+                for index in data.get('index', []):  # 遍历所有指数项
+                    index_name = index.get('name', '未知')
+                    index_level = index.get('level', '未知')
+                    index_content = index.get('content', '未知')
+                    index_info += f"🔔 {index_name}: {index_level} - {index_content}\n"  # 添加指数信息
+                formatted_output.append(index_info)  # 将所有指数信息添加到输出中    
                 # Next 7 hours weather
                 ten_hours_later = dt_object + timedelta(hours=10)
 
@@ -493,6 +501,7 @@ class Apilot(Plugin):
                             f"🟢 提示: \n{alarm['tips']}\n"
                             f"🔵 内容: \n{alarm['content']}\n\n"
                         )
+                        alarm_info = alarm_info.replace('<br>', '\n')
                     formatted_output.append(alarm_info)
 
                 return "\n".join(formatted_output)
